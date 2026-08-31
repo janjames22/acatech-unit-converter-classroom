@@ -1,0 +1,7 @@
+# Deploy only the locally verified Flutter Web release and Vercel routing
+# configuration. Source code, local data, credentials, and caches are excluded.
+/*
+!build
+!build/web
+!build/web/**
+!vercel.json
