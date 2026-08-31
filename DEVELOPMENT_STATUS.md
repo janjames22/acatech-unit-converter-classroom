@@ -24,7 +24,7 @@ This is the live delivery checklist. A checked item means the implementation exi
 | Assessment monitoring | In progress | Root lifecycle monitor, exact threshold policy, pending-candidate persistence/recovery, Android lock hints, and neutral reports are implemented; platform matrix remains open |
 | Local reports | In progress | SharedPreferences repository, report UI, teacher-PIN verifier, throttling, and deletion are implemented; migration/failure and physical persistence acceptance remain open |
 | Responsive UI | In progress | Compact, medium, and expanded navigation/layouts plus widget coverage exist; full browser/device/viewport matrix remains open |
-| PWA shell | In progress | Manifest metadata, icon declarations, install bridge loading, app-owned service worker, and Firebase Hosting rules are configured; physical installation/offline acceptance remains open |
+| PWA shell | In progress | Manifest metadata, icon declarations, install bridge loading, app-owned service worker, Firebase Hosting rules, and a public Vercel preview are configured; physical installation/offline acceptance remains open |
 | Firebase synchronization | Deferred | Static Hosting rules exist, but report sync remains a future seam; Firebase CLI authentication and a project ID are unavailable |
 | Native desktop runners | Deferred | Desktop delivery currently means Web/PWA |
 
@@ -141,6 +141,7 @@ This is the live delivery checklist. A checked item means the implementation exi
 - [x] Version the service-worker cache from the Flutter build token and limit cache cleanup to this application.
 - [x] Exclude Firebase reserved /__/ routes from service-worker fallback and caching.
 - [x] Add static Firebase Hosting configuration for build/web, SPA fallback, security headers, and shell revalidation.
+- [x] Add static Vercel configuration for the locally built `build/web` release, SPA fallback, security headers, and source-only upload exclusions.
 - [x] Build the current release with local renderer resources and verify every APP_SHELL path exists.
 - [ ] Select a real Firebase project and create .firebaserc with firebase use --add.
 - [ ] Confirm install flow on Android Chrome and iOS/iPadOS Safari.
@@ -165,9 +166,13 @@ Checked items below have source, static-build, or automated-test evidence. Devic
 - [x] iOS instructions implemented
 - [x] Standalone detection tested
 - [x] Already-installed state tested
-- [ ] HTTPS preview deployed
+- [x] HTTPS preview deployed
 
-Firebase Hosting is configuration-ready through firebase.json. Firebase CLI 15.28.2 is available through `npx`, but it is not authenticated, no Firebase project ID has been supplied, and .firebaserc is intentionally absent. No deployment has been performed.
+The Vercel preview is publicly reachable over HTTPS. The application shell and direct `/assessment`, `/reports`, and `/converter` paths return HTTP 200; the deployed manifest, install bridge, app-owned service worker, and 192 px icon match the locally verified release artifacts. Physical browser installation remains an acceptance item.
+
+Vercel automatically promoted the project's first deployment despite the CLI call omitting `--prod`. A separate explicit preview was then created and verified; deletion of the unintended first deployment remains pending explicit cloud-delete approval.
+
+Firebase Hosting remains configuration-ready through firebase.json as an undeployed alternative. Firebase CLI 15.28.2 is available through `npx`, but it is not authenticated, no Firebase project ID has been supplied, and .firebaserc is intentionally absent. Firebase report synchronization remains deferred.
 
 The Chromium bridge and its one-shot prompt contract are covered in VM and Chrome Web tests. The real browser eligibility event remains unchecked until an installable HTTPS preview is available.
 
@@ -180,6 +185,7 @@ The maskable PNGs currently match the regular PNGs byte-for-byte. Their files an
 - [x] Make flutter analyze pass with no unresolved findings.
 - [x] Make the full automated test suite pass (95 tests).
 - [x] Produce a release Web build.
+- [x] Document and verify the local-build Vercel static preview workflow.
 - [x] Produce an Android debug compatibility APK after the conditional Web implementation.
 - [ ] Produce Android and iOS release candidates.
 - [ ] Complete the device, browser, viewport, accessibility, lifecycle, and interruption matrices in TEST_PLAN.md.
@@ -241,6 +247,9 @@ When updating this file:
 - Recorded successful static PWA validation and release Web build while leaving physical install, offline/update, and HTTPS deployment checks open.
 - Added static Firebase Hosting configuration without selecting or deploying to a project.
 - Recorded clean analysis, 95 passing tests, 14 passing Chrome-interoperability tests, and a successful Android debug build.
+- Added a Vercel static deployment configuration and local-build deployment guide.
+- Verified a public HTTPS preview, direct SPA fallbacks, static content types, security headers, and release-artifact hashes.
+- Recorded the remaining Vercel first-deployment cleanup gate without weakening the preview-only release policy.
 
 ### 2026-08-28
 
