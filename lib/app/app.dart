@@ -12,6 +12,11 @@ import '../features/calculator/calculator.dart';
 import '../features/converter/converter.dart';
 import '../features/converter/presentation/converter_home_page.dart';
 import '../features/converter/presentation/converter_page.dart';
+import '../features/module_02/module_02.dart';
+import '../features/module_03/module_03.dart';
+import '../features/module_04/module_04.dart';
+import '../features/module_05/module_05.dart';
+import '../features/modules/presentation/aviation_math_hub.dart';
 import '../features/pwa_install/pwa_install.dart';
 import '../features/reports/presentation/reports_page.dart';
 import 'app_settings_controller.dart';
@@ -23,6 +28,10 @@ import 'theme/app_theme.dart';
 class UnitConverterApp extends StatefulWidget {
   const UnitConverterApp({
     required this.assessmentController,
+    required this.module2ProgressController,
+    required this.module3ProgressController,
+    required this.module4ProgressController,
+    required this.module5ProgressController,
     required this.pinService,
     required this.settingsController,
     required this.systemPresenceBridge,
@@ -31,6 +40,10 @@ class UnitConverterApp extends StatefulWidget {
   });
 
   final AssessmentAppController assessmentController;
+  final Module2ProgressController module2ProgressController;
+  final Module3ProgressController module3ProgressController;
+  final Module4ProgressController module4ProgressController;
+  final Module5ProgressController module5ProgressController;
   final TeacherPinService pinService;
   final AppSettingsController settingsController;
   final SystemPresenceBridge systemPresenceBridge;
@@ -68,6 +81,10 @@ class _UnitConverterAppState extends State<UnitConverterApp> {
     unawaited(widget.systemPresenceBridge.dispose());
     widget.pwaInstallService.dispose();
     widget.assessmentController.dispose();
+    widget.module2ProgressController.dispose();
+    widget.module3ProgressController.dispose();
+    widget.module4ProgressController.dispose();
+    widget.module5ProgressController.dispose();
     widget.settingsController.dispose();
     super.dispose();
   }
@@ -84,6 +101,10 @@ class _UnitConverterAppState extends State<UnitConverterApp> {
         themeMode: widget.settingsController.themeMode,
         home: UnitConverterShell(
           assessmentController: widget.assessmentController,
+          module2ProgressController: widget.module2ProgressController,
+          module3ProgressController: widget.module3ProgressController,
+          module4ProgressController: widget.module4ProgressController,
+          module5ProgressController: widget.module5ProgressController,
           pinService: widget.pinService,
           settingsController: widget.settingsController,
           pwaInstallService: widget.pwaInstallService,
@@ -96,6 +117,10 @@ class _UnitConverterAppState extends State<UnitConverterApp> {
 class UnitConverterShell extends StatefulWidget {
   const UnitConverterShell({
     required this.assessmentController,
+    required this.module2ProgressController,
+    required this.module3ProgressController,
+    required this.module4ProgressController,
+    required this.module5ProgressController,
     required this.pinService,
     required this.settingsController,
     required this.pwaInstallService,
@@ -103,6 +128,10 @@ class UnitConverterShell extends StatefulWidget {
   });
 
   final AssessmentAppController assessmentController;
+  final Module2ProgressController module2ProgressController;
+  final Module3ProgressController module3ProgressController;
+  final Module4ProgressController module4ProgressController;
+  final Module5ProgressController module5ProgressController;
   final TeacherPinService pinService;
   final AppSettingsController settingsController;
   final PwaInstallService pwaInstallService;
@@ -113,7 +142,8 @@ class UnitConverterShell extends StatefulWidget {
 
 class _UnitConverterShellState extends State<UnitConverterShell> {
   static const int _assessmentIndex = 1;
-  static const int _reportsIndex = 3;
+  static const int _calculatorIndex = 2;
+  static const int _reportsIndex = 4;
 
   static const _destinations = <AppDestination>[
     AppDestination(
@@ -130,6 +160,11 @@ class _UnitConverterShellState extends State<UnitConverterShell> {
       label: 'Calculator',
       icon: Icons.calculate_outlined,
       selectedIcon: Icons.calculate_rounded,
+    ),
+    AppDestination(
+      label: 'Learn',
+      icon: Icons.school_outlined,
+      selectedIcon: Icons.school_rounded,
     ),
     AppDestination(
       label: 'Reports',
@@ -228,6 +263,12 @@ class _UnitConverterShellState extends State<UnitConverterShell> {
                 onOpenConverter: () => setState(() => _selectedIndex = 0),
               ),
               CalculatorScreen(controller: _calculatorController),
+              AviationMathHub(
+                onOpenModule2: _openModule2,
+                onOpenModule3: _openModule3,
+                onOpenModule4: _openModule4,
+                onOpenModule5: _openModule5,
+              ),
               ReportsPage(
                 controller: widget.assessmentController,
                 pinService: widget.pinService,
@@ -244,6 +285,55 @@ class _UnitConverterShellState extends State<UnitConverterShell> {
       _selectedCategory = category;
       _initialUnit = initialUnit;
     });
+  }
+
+  void _openModule2() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => Module2Screen(
+          progressController: widget.module2ProgressController,
+          onOpenCalculator: _openCalculatorFromLearningRoute,
+        ),
+      ),
+    );
+  }
+
+  void _openModule3() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => Module3Screen(
+          progressController: widget.module3ProgressController,
+          onOpenCalculator: _openCalculatorFromLearningRoute,
+        ),
+      ),
+    );
+  }
+
+  void _openModule4() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => Module4Screen(
+          progressController: widget.module4ProgressController,
+          onOpenCalculator: _openCalculatorFromLearningRoute,
+        ),
+      ),
+    );
+  }
+
+  void _openModule5() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => Module5Screen(
+          progressController: widget.module5ProgressController,
+          onOpenCalculator: _openCalculatorFromLearningRoute,
+        ),
+      ),
+    );
+  }
+
+  void _openCalculatorFromLearningRoute() {
+    Navigator.of(context).popUntil((route) => route.isFirst);
+    setState(() => _selectedIndex = _calculatorIndex);
   }
 
   Future<PwaInstallPromptOutcome> _promptInstall() {

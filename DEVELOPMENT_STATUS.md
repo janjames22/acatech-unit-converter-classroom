@@ -1,6 +1,6 @@
 # Development Status
 
-**Status date:** 2026-09-01
+**Status date:** 2026-09-02
 **Overall state:** Core converter, calculator, assessment, local-report, responsive-shell, and install-flow implementation exists. Phase 3 stabilization passed local regression, release-build, Chrome install-signal, and offline-shell gates. Physical mobile installation/lifecycle testing and installed standalone acceptance remain open, so the product is not release-ready.
 
 This is the live delivery checklist. A checked item means the implementation exists in the repository and has appropriate verification evidence. Architecture approval alone does not make an implementation item complete.
@@ -19,10 +19,15 @@ This is the live delivery checklist. A checked item means the implementation exi
 | Flutter project scaffold | Done | Android, iOS, and Web runners are present |
 | Dependency baseline | Done | Flutter, Cupertino icons, shared preferences, and cryptographic verifier dependencies are locked |
 | Application UI | In progress | Product app shell, converter, assessment, reports, theme, and install affordances are implemented; physical-device acceptance remains open |
-| Automated tests | Done | `flutter analyze` is clean and all 135 VM/widget tests pass; 18 Chrome-specific install-service/action tests also pass |
+| Automated tests | Done | `flutter analyze` is clean and all 241 VM/widget tests pass; 18 Chrome-specific install-service/action tests also pass |
 | Converter domain | Done | Nine-category catalog, conversion engine, affine temperature handling, search, and number formatting are implemented with unit coverage |
 | Calculator domain | Done | Feature-isolated immutable state/history models, angle modes, tokenizer/parser, scientific evaluation, typed failures, and deterministic number formatting are covered by 21 tests |
 | Calculator UI | Done | Material 3 basic/scientific keypads, expression/result/error display, memory, angle mode, session-local history, compact history sheet, tablet dialog, desktop history panel, and 320–2560 px widget coverage are implemented |
+| AMT 111 Module 2 — Whole Numbers | Done | Five lessons, aviation worked examples, guided lab, seven-question practice/Quiz, calculator launch, versioned local progress, responsive UI, and 20 focused tests are complete |
+| AMT 111 Module 3 — Fractions | Done | Six lessons, exact fraction engine, corrected LCD 64, fraction lab, nine-question Seat Work 2, calculator launch, versioned attempts/progress, responsive UI, and 26 focused tests are complete |
+| AMT 111 Module 4 — Mixed Numbers | Done | Five lessons, Module 3 fraction-service reuse, mixed-number lab, eight-question Seat Work 3 preparation, calculator launch, versioned local progress, responsive UI, and 28 focused tests are complete |
+| AMT 111 Module 5 — Decimal Number System | Done | Six lessons, BigInt coefficient/scale decimal engine, half-up rounding, exact/repeating fraction conversion, shop 64ths, thirteen-question Seat Work 3, calculator launch, versioned local progress, responsive UI, and 27 focused tests are complete; Modules 6–13 remain unstarted |
+| Modules 2–5 controlled practice input | Done | Graded answers use a shared in-app numeric keypad with structured fraction, mixed-number, decimal, and unit controls; no graded practice card contains an editable text field |
 | Assessment monitoring | In progress | Root lifecycle monitor, exact threshold policy, pending persistence/recovery, Android lock hints, internal tool/overlay no-incident integration, and neutral reports are verified; physical platform matrix remains open |
 | Local reports | In progress | SharedPreferences repository, report UI, teacher-PIN verifier, throttling, and deletion are implemented; migration/failure and physical persistence acceptance remain open |
 | Responsive UI | In progress | Compact, medium, and expanded navigation/layouts pass logical-width tests from 320 through 2560 px; physical browser/device, zoom, and accessibility matrices remain open |
@@ -230,12 +235,121 @@ The Chromium bridge and its one-shot prompt contract are covered in VM and Chrom
 
 The regular and maskable PNGs are now separate ACATECH assets. Automated pixel validation confirms that all visible maskable artwork, including both wing tips, remains inside the central 80% safe-zone circle. Physical launcher-mask acceptance remains open.
 
+## AMT 111 Phase A — Module 2: Whole Numbers
+
+**Status: Done**
+
+- [x] Add a feature-isolated `lib/features/module_02/` boundary with models, presentation, services, and widgets.
+- [x] Add five curriculum lessons covering place value, operation vocabulary, four operations, remainders, factors, multiples, primes, GCD/LCM, and divisibility.
+- [x] Add curriculum worked examples and aviation inventory, flight-hour, fastener, technician-allocation, and cycle examples.
+- [x] Implement exact non-negative integer operations, `divmod`, factors, prime factorization, multiples, GCD, LCM, place-value rows, and divisibility explanations for 2, 3, 4, 5, 6, 8, 9, and 10.
+- [x] Keep subtraction with a negative result outside Module 2 and direct the learner to Module 9.
+- [x] Add a guided whole-number lab and seven-question retryable Module 2 practice/Quiz with explanations.
+- [x] Add one `Learn` destination to the existing adaptive shell and launch the existing calculator through the shell callback without duplicating its engine.
+- [x] Add versioned local-first SharedPreferences storage for viewed lessons, mastered questions, score, practice completion, and module completion status.
+- [x] Keep curriculum progress separate from assessment presence sessions and incidents; Firebase remains deferred.
+- [x] Verify internal module navigation, lesson routes, and calculator launch create zero incidents during an active assessment.
+- [x] Verify Module 2 layouts at 320, 360, 390, 430, 768, 1024, 1366, and 1920 logical pixels without layout exceptions.
+- [x] Add 20 focused domain, validation, persistence, widget, responsive, navigation, and assessment-compatibility tests.
+- [x] Run `flutter analyze` clean and the complete 155-test suite successfully.
+- [ ] Complete physical-device accessibility, installed-PWA, and browser acceptance for Module 2.
+- [x] Integrate the separately approved Module 3 through one responsive Aviation Mathematics hub without changing Module 2 internals.
+
+## AMT 111 Phase A — Module 3: Fractions
+
+**Status: Done**
+
+- [x] Add a feature-isolated `lib/features/module_03/` boundary with models, presentation, services, and widgets.
+- [x] Add six curriculum lessons covering fraction anatomy, equivalent fractions, both common-denominator methods, four operations, cancellation, tolerance ranges, mixed numbers, and lowest terms.
+- [x] Add aviation examples for panel thickness, aileron tolerance, hole-center layout, and jackscrew travel.
+- [x] Implement normalized `ExactFraction` values with a positive nonzero denominator, exact arithmetic, comparison, classification, and mixed-number formatting.
+- [x] Reuse Module 2's tested GCD/LCM service without modifying Module 2.
+- [x] Preserve unsimplified equivalent-fraction steps for instruction while normalizing final arithmetic results.
+- [x] Lock the authoritative corrected panel LCD of 64 and every specified worked result with tests.
+- [x] Add the responsive exact-fraction lab with fraction-bar semantics, LCD method selection, operation/comparison controls, equivalent steps, and reduction output.
+- [x] Add nine retryable Seat Work 2 questions that separately validate arithmetic, lowest terms, and required units.
+- [x] Add versioned local-first SharedPreferences storage for lesson views, practice-attempt counts, mastered questions, score, and completion status.
+- [x] Add one responsive Aviation Mathematics hub under the existing `Learn` destination; Modules 2 and 3 use internal Flutter routes.
+- [x] Launch the existing calculator through the shell callback without modifying or duplicating the calculator engine.
+- [x] Keep curriculum results separate from assessment presence sessions and incidents; Firebase remains deferred.
+- [x] Verify hub, module, lesson, practice, and calculator navigation create zero incidents during an active assessment.
+- [x] Verify Module 3 layouts at 320, 360, 390, 430, 768, 1024, 1366, and 1920 logical pixels without layout exceptions.
+- [x] Add 26 focused domain, validation, persistence, widget, responsive, navigation, and assessment-compatibility tests.
+- [x] Run `flutter analyze` clean and the complete 181-test suite successfully.
+- [ ] Complete physical-device accessibility, installed-PWA, and browser acceptance for Module 3.
+- [x] Integrate the separately approved Module 4 without changing Module 3 internals.
+
+## AMT 111 Phase A — Module 4: Mixed Numbers
+
+**Status: Done**
+
+- [x] Add a feature-isolated `lib/features/module_04/` boundary with models, presentation, services, and widgets.
+- [x] Add five curriculum lessons covering mixed/improper conversion, addition with carrying, subtraction with borrowing, formula-given selection and distracters, multiplication, division, and cut planning.
+- [x] Add aviation examples for steel-rule and drawing dimensions, cargo length, authoritative bolt grip, spacer stacks, and control-cable cuts.
+- [x] Reuse Module 3's public `ExactFraction`, `FractionEngine`, and fraction parser without changing Module 3 or duplicating exact fraction arithmetic.
+- [x] Implement normalized non-negative mixed values, bidirectional conversion steps, carry/borrow evidence, exact four-operation results, piece totals, cut plans, and distracter selection.
+- [x] Preserve the authoritative bolt-grip result `3 1/8 − 1 5/16 = 1 13/16 inch` and reject overall length as a distracter.
+- [x] Add a responsive mixed-number lab with whole/numerator/denominator controls and explicit improper, carry, borrow, and reduced-result evidence.
+- [x] Add eight retryable Seat Work 3 preparation questions that separately validate exact value, mixed form, lowest terms, units, and selected givens.
+- [x] Add versioned local-first SharedPreferences storage for lesson views, practice-attempt counts, mastered questions, score, and completion status.
+- [x] Add Module 4 to the existing responsive Aviation Mathematics hub and launch the existing calculator through the shell callback.
+- [x] Keep curriculum results separate from assessment presence sessions and incidents; Firebase remains deferred.
+- [x] Verify hub, module, lesson, practice, and calculator navigation create zero incidents during an active assessment.
+- [x] Verify Module 4 layouts at 320, 360, 390, 430, 768, 1024, 1366, and 1920 logical pixels without layout exceptions.
+- [x] Add 28 focused domain, validation, persistence, widget, responsive, navigation, and assessment-compatibility tests.
+- [x] Run `flutter analyze` clean and the complete 209-test suite successfully.
+- [ ] Complete physical-device accessibility, installed-PWA, and browser acceptance for Module 4.
+- [x] Integrate the separately approved Module 5 without changing Module 4 internals.
+
+## AMT 111 Phase A — Module 5: The Decimal Number System
+
+**Status: Done**
+
+- [x] Add a feature-isolated `lib/features/module_05/` boundary with models, presentation, services, and widgets.
+- [x] Add six curriculum lessons covering place value and reading, comparison, aligned addition/subtraction, multiplication/division, final-step half-up rounding, shop 64ths, drill/ream planning, and terminating/repeating fraction conversion.
+- [x] Add aviation examples for series resistance, material dimensions, electrical power, wing dimensions, socket/drill/ream sizes, and the corrected decimal-equivalent reference row.
+- [x] Implement `DecimalQuantity` with a `BigInt` coefficient and integer scale so arithmetic and comparison do not use binary floating point.
+- [x] Normalize leading/trailing zeros while preserving exact value and support very long inputs without an early precision conversion.
+- [x] Implement exact addition, subtraction, multiplication, comparison, division as a reduced fraction plus decimal expansion, and explicit zero-divisor/negative-policy failures.
+- [x] Implement curriculum half-up rounding with retained digit, inspection digit, requested fixed-place output, and no early rounding.
+- [x] Implement exact decimal-to-fraction conversion and bounded long-division detection for terminating and repeating expansions.
+- [x] Render repeating digits with an explicit overline and preserve plain parenthesized notation for validation and accessibility.
+- [x] Preserve the curriculum correction that the corrupted `39341` chart row is `9/16`, with `0.5625 in` and `14.2875 mm` associated with that fraction.
+- [x] Implement the shop method `0.3123 × 64 → 20/64 → 5/16` and drill/ream method `0.763 in → 49/64 − 1/64 = 3/4` without early rounding.
+- [x] Add a responsive exact-decimal lab covering operations, place value, rounding, fraction conversions, repeating cycles, shop 64ths, and drill/ream planning.
+- [x] Add thirteen retryable Seat Work 3 questions that separately validate exact value, requested precision, lowest terms, repeating notation, and units.
+- [x] Add versioned local-first SharedPreferences storage for lesson views, practice-attempt counts, mastered questions, score, and completion status.
+- [x] Add Module 5 to the existing responsive Aviation Mathematics hub and launch the existing calculator through the shell callback.
+- [x] Keep curriculum progress separate from assessment presence sessions and incidents; Firebase remains deferred.
+- [x] Verify hub, module, lesson, practice, and calculator navigation create zero incidents during an active assessment.
+- [x] Verify Module 5 layouts at 320, 360, 390, 430, 768, 1024, 1366, and 1920 logical pixels without layout exceptions.
+- [x] Add 27 focused domain, validation, persistence, widget, responsive, navigation, and assessment-compatibility tests.
+- [x] Run `flutter analyze` clean and the complete 236-test suite successfully.
+- [ ] Complete physical-device accessibility, installed-PWA, and browser acceptance for Module 5.
+- [ ] Start Module 6 only after separate approval.
+
+## Modules 2–5 beta input UX
+
+**Status: Done (local/automated); physical device gates remain open**
+
+- [x] Add reusable `NumericKeypad`, `NumericInput`, `FractionInput`, `MixedNumberInput`, `DecimalInput`, and controlled unit-choice components under `lib/features/practice/widgets/`.
+- [x] Replace every graded practice `TextField` in Modules 2–5 with controlled application-owned input without changing the calculation engines or validators.
+- [x] Restrict entry to digits, decimal point, clear, backspace, structured fraction/mixed-number parts, problem-specific symbols, and declared units.
+- [x] Verify every Module 2–5 practice card contains no `EditableText`, while retry, validation, explanation, scoring, and progress behavior remain intact.
+- [x] Verify keypad opening, input, submission, and calculator launch during an active assessment create zero incidents and do not replace the root monitor.
+- [x] Verify complete Module 2–5 layouts at 320, 360, 390, 430, 768, 1024, 1366, and 1920 logical pixels without layout exceptions.
+- [x] Run 106 focused beta tests, clean static analysis, and the complete 241-test regression suite.
+- [x] Produce a successful release Web build and verify generated manifest, service worker, and regular/maskable icon inventory.
+- [x] Record the results and remaining physical-device limitations in `docs/BETA_TEST_REPORT.md`.
+- [ ] Confirm system-keyboard suppression, orientation, text scaling, screen-reader output, and tap ergonomics on physical Android and iOS devices.
+- [ ] Start Module 6 only after separate approval.
+
 ## Phase 7 — Verification and release
 
 **Status: In progress**
 
 - [x] Make flutter analyze pass with no unresolved findings.
-- [x] Make the full automated test suite pass (135 tests).
+- [x] Make the full automated test suite pass (241 tests).
 - [x] Produce a release Web build.
 - [x] Document and verify the local-build Vercel static preview workflow.
 - [x] Produce an Android debug compatibility APK after the conditional Web implementation.
@@ -270,6 +384,7 @@ The regular and maskable PNGs are now separate ACATECH assets. Automated pixel v
 7. Local PWA data and a browser-local PIN are not tamper-proof against the device owner.
 8. Broad “system dialog” exemptions could be exploited; expected external flows must be explicit and time-bounded.
 9. Automated and local Chrome offline coverage exists, but physical interruption, installation, standalone, accessibility, and full device/browser matrices remain open.
+10. Module learning labs retain editable exploratory operands; only graded practice-answer entry is controlled in this beta phase.
 
 ## Immediate integration order
 
@@ -278,7 +393,7 @@ The regular and maskable PNGs are now separate ACATECH assets. Automated pixel v
 3. Complete the assessment interruption and Android lock-exclusion device matrix.
 4. Complete responsive, accessibility, performance, and local-persistence validation.
 5. Run the service-worker update procedure with two distinct release builds.
-6. Start Module 2–13 only after explicit user approval.
+6. Keep Modules 2–5 complete and start Module 6 only after separate explicit approval.
 
 ## Checklist maintenance
 
@@ -291,6 +406,24 @@ When updating this file:
 - Record limitations rather than silently weakening acceptance criteria.
 
 ## Change log
+
+### 2026-09-02
+
+- Completed the Modules 2–5 beta input UX phase without starting Module 6 or modifying calculator, converter, assessment-monitoring, interruption-policy, or curriculum-engine logic.
+- Replaced graded practice text entry with reusable controlled numeric, fraction, mixed-number, decimal, repeating-notation, and unit-choice components.
+- Updated Module 2–5 practice and active-assessment integration coverage to use the in-app keypad; keypad entry and submission produce zero assessment incidents.
+- Verified all required 320–1920 logical widths, clean static analysis, 106 focused beta tests, all 241 project tests, and a successful release Web/PWA build.
+- Recorded fixes and physical-device limitations in `docs/BETA_TEST_REPORT.md`.
+- Completed the separately approved Module 5 Decimal Number System vertical slice without modifying the calculator engine, converter formulas, assessment monitoring, interruption policy, or Modules 2–4.
+- Added BigInt coefficient/scale exact decimals, safe comparison and operations, half-up rounding, exact and repeating fraction conversion, shop 64ths, and drill/ream planning.
+- Added six curriculum lessons, aviation worked examples, explicit repeating overlines, the corrected `9/16` chart row, a responsive decimal lab, thirteen retryable questions, and versioned local progress.
+- Added Module 5 to the existing Aviation Mathematics hub and verified internal lesson/calculator navigation produces zero assessment incidents.
+- Added 27 focused tests; verified clean static analysis and all 236 project tests passing.
+- Completed the separately approved Module 4 Mixed Numbers vertical slice without modifying the calculator engine, converter formulas, assessment monitoring, interruption policy, or Modules 2–3.
+- Reused Module 3 exact-fraction services for normalized conversions, carry/borrow operations, multiplication, division, spacer totals, cut planning, and answer parsing.
+- Added five curriculum lessons, aviation worked examples, the authoritative bolt-grip correction, a responsive mixed-number lab, eight retryable practice questions, and versioned local progress.
+- Added Module 4 to the existing Aviation Mathematics hub and verified internal lesson/calculator navigation produces zero assessment incidents.
+- Added 28 focused tests; verified clean static analysis and all 209 project tests passing.
 
 ### 2026-09-01
 
@@ -308,7 +441,8 @@ When updating this file:
 - Verified clean analysis, all 129 VM/widget tests, 18 Chrome tests, and a release Web build.
 - Verified manifest/icons/scripts, install eligibility, service-worker shell acquisition, and a byte-identical offline Chrome render after server shutdown.
 - Recorded physical mobile/standalone gates, maskable-icon risk, and minor UI consistency/loading observations in `docs/PHASE3_TEST_REPORT.md`.
-- Left Module 2–13 implementation unstarted pending approval.
+- Completed the approved Module 2 Whole Numbers vertical slice; Modules 3–13 remain unstarted pending separate approval.
+- Completed the separately approved Module 3 Fractions vertical slice and responsive Aviation Mathematics hub; Modules 4–13 remain unstarted.
 
 ### 2026-08-31
 
