@@ -51,7 +51,11 @@ firebase-debug.log
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
+/build/*
+!/build/web/
+!/build/web/**
+/build/web/.last_build_id
+/build/web/**/*.symbols
 /coverage/
 
 # Symbolication related
