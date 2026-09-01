@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 
 import '../core/security/teacher_pin_service.dart';
 import '../core/widgets/teacher_pin_dialog.dart';
+import '../features/about/presentation/about_page.dart';
 import '../features/assessment/infrastructure/system_presence_bridge.dart';
 import '../features/assessment/presentation/assessment_app_controller.dart';
 import '../features/assessment/presentation/assessment_page.dart';
+import '../features/calculator/calculator.dart';
 import '../features/converter/converter.dart';
 import '../features/converter/presentation/converter_home_page.dart';
 import '../features/converter/presentation/converter_page.dart';
@@ -75,7 +77,7 @@ class _UnitConverterAppState extends State<UnitConverterApp> {
     return ListenableBuilder(
       listenable: widget.settingsController,
       builder: (context, _) => MaterialApp(
-        title: 'Unit Converter Classroom',
+        title: 'ACATECH Aviation Tools',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light(),
         darkTheme: AppTheme.dark(),
@@ -110,6 +112,9 @@ class UnitConverterShell extends StatefulWidget {
 }
 
 class _UnitConverterShellState extends State<UnitConverterShell> {
+  static const int _assessmentIndex = 1;
+  static const int _reportsIndex = 3;
+
   static const _destinations = <AppDestination>[
     AppDestination(
       label: 'Home',
@@ -122,15 +127,33 @@ class _UnitConverterShellState extends State<UnitConverterShell> {
       selectedIcon: Icons.fact_check_rounded,
     ),
     AppDestination(
+      label: 'Calculator',
+      icon: Icons.calculate_outlined,
+      selectedIcon: Icons.calculate_rounded,
+    ),
+    AppDestination(
       label: 'Reports',
       icon: Icons.summarize_outlined,
       selectedIcon: Icons.summarize_rounded,
     ),
   ];
 
+  late final CalculatorController _calculatorController;
   int _selectedIndex = 0;
   UnitCategory? _selectedCategory;
   UnitDefinition? _initialUnit;
+
+  @override
+  void initState() {
+    super.initState();
+    _calculatorController = CalculatorController();
+  }
+
+  @override
+  void dispose() {
+    _calculatorController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -142,11 +165,17 @@ class _UnitConverterShellState extends State<UnitConverterShell> {
             AppBreakpoints.sizeClassFor(MediaQuery.sizeOf(context).width) ==
             WindowSizeClass.compact;
         return AdaptiveScaffold(
-          title: 'Unit Converter',
+          title: 'ACATECH',
           destinations: _destinations,
           selectedIndex: _selectedIndex,
           onDestinationSelected: _selectDestination,
           actions: [
+            IconButton(
+              key: const ValueKey('open-about'),
+              tooltip: 'About ACATECH',
+              onPressed: _openAbout,
+              icon: const Icon(Icons.info_outline_rounded),
+            ),
             InstallAppAction(
               service: widget.pwaInstallService,
               compact: compact,
@@ -171,7 +200,8 @@ class _UnitConverterShellState extends State<UnitConverterShell> {
                   assessmentName: activeSession.assessmentName,
                   reviewCount: widget.assessmentController.reviewCount,
                   extendedCount: widget.assessmentController.extendedCount,
-                  onTap: () => setState(() => _selectedIndex = 1),
+                  onTap: () =>
+                      setState(() => _selectedIndex = _assessmentIndex),
                 ),
           body: IndexedStack(
             index: _selectedIndex,
@@ -197,6 +227,7 @@ class _UnitConverterShellState extends State<UnitConverterShell> {
                 pinService: widget.pinService,
                 onOpenConverter: () => setState(() => _selectedIndex = 0),
               ),
+              CalculatorScreen(controller: _calculatorController),
               ReportsPage(
                 controller: widget.assessmentController,
                 pinService: widget.pinService,
@@ -222,11 +253,17 @@ class _UnitConverterShellState extends State<UnitConverterShell> {
         );
   }
 
+  void _openAbout() {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (context) => const AboutPage()));
+  }
+
   Future<void> _selectDestination(int index) async {
     if (index == _selectedIndex) {
       return;
     }
-    if (index == 2) {
+    if (index == _reportsIndex) {
       final authorized = await requestTeacherAuthorization(
         context,
         pinService: widget.pinService,

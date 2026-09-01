@@ -11,6 +11,7 @@ import 'package:unit_converter/features/assessment/application/assessment_monito
 import 'package:unit_converter/features/assessment/data/in_memory_assessment_repository.dart';
 import 'package:unit_converter/features/assessment/domain/models/assessment_session.dart';
 import 'package:unit_converter/features/assessment/presentation/assessment_app_controller.dart';
+import 'package:unit_converter/features/calculator/calculator.dart';
 import 'package:unit_converter/features/pwa_install/pwa_install.dart';
 
 void main() {
@@ -61,8 +62,8 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
-    const widths = <double>[360, 390, 430, 768, 1024, 1366, 1920];
-    tester.view.physicalSize = const Size(360, 900);
+    const widths = <double>[320, 360, 390, 430, 768, 1024, 1366, 1920, 2560];
+    tester.view.physicalSize = const Size(320, 900);
     await pumpShell(tester);
 
     for (final width in widths) {
@@ -102,35 +103,168 @@ void main() {
     }
   });
 
-  testWidgets('internal navigation keeps monitor and creates no incident', (
+  testWidgets(
+    'internal tools and overlays keep monitor and create no incident',
+    (tester) async {
+      await initializeDependencies();
+      final now = DateTime.now().toUtc();
+      await monitor.startSession(
+        AssessmentSession(
+          id: 'active-session',
+          studentName: 'Student',
+          assessmentName: 'Quiz',
+          startedAt: now,
+          plannedDuration: const Duration(minutes: 30),
+        ),
+      );
+      await controller.refreshReports();
+      final originalMonitor = controller.monitor;
+
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(390, 844);
+      addTearDown(tester.view.reset);
+      await pumpShell(tester);
+
+      await tester.tap(find.text('Assessment').last);
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.tap(find.text('Calculator').last);
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byType(CalculatorScreen), findsOneWidget);
+
+      final calculatorScrollable = find
+          .descendant(
+            of: find.byKey(const ValueKey('calculator-scroll-view')),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      for (final keyName in ['digit-2', 'add', 'digit-2', 'equals']) {
+        final key = find.byKey(ValueKey('calculator-key-$keyName'));
+        await tester.scrollUntilVisible(
+          key,
+          400,
+          scrollable: calculatorScrollable,
+        );
+        await tester.tap(key);
+        await tester.pump();
+      }
+      final history = find.byKey(const ValueKey('calculator-open-history'));
+      await tester.scrollUntilVisible(
+        history,
+        -400,
+        scrollable: calculatorScrollable,
+      );
+      await tester.tap(history);
+      await tester.pumpAndSettle();
+      expect(find.text('Previous Calculations'), findsOneWidget);
+      expect(find.text('= 4'), findsOneWidget);
+      await tester.tapAt(const Offset(8, 100));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Home').last);
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.tap(find.text('Length'));
+      await tester.pumpAndSettle();
+      final input = find.byKey(const ValueKey('conversion-input'));
+      await tester.tap(input);
+      await tester.showKeyboard(input);
+      await tester.enterText(input, '12.5');
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('from-unit')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Kilometer (km)').last);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Reports').last);
+      await tester.pumpAndSettle();
+      expect(find.text('Create teacher PIN'), findsOneWidget);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Toggle light or dark theme'));
+      await tester.pump();
+
+      await tester.tap(find.byKey(const ValueKey('open-about')));
+      await tester.pumpAndSettle();
+      expect(find.text('About ACATECH'), findsOneWidget);
+      expect(find.byKey(const ValueKey('acatech-full-logo')), findsOneWidget);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+
+      expect(identical(controller.monitor, originalMonitor), isTrue);
+      expect(await repository.loadIncidents('active-session'), isEmpty);
+    },
+  );
+
+  testWidgets('teacher PIN gates assessment start, reports, and end', (
     tester,
   ) async {
     await initializeDependencies();
-    final now = DateTime.now().toUtc();
-    await monitor.startSession(
-      AssessmentSession(
-        id: 'active-session',
-        studentName: 'Student',
-        assessmentName: 'Quiz',
-        startedAt: now,
-        plannedDuration: const Duration(minutes: 30),
-      ),
-    );
-    await controller.refreshReports();
-    final originalMonitor = controller.monitor;
-
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(390, 844);
     addTearDown(tester.view.reset);
     await pumpShell(tester);
 
     await tester.tap(find.text('Assessment').last);
-    await tester.pump(const Duration(milliseconds: 500));
-    await tester.tap(find.text('Home').last);
-    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('student-name')),
+      'Student 1',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('assessment-name')),
+      'Integration Quiz',
+    );
+    final start = find.byKey(const ValueKey('start-assessment'));
+    await tester.ensureVisible(start);
+    await tester.tap(start);
+    await tester.pumpAndSettle();
 
-    expect(identical(controller.monitor, originalMonitor), isTrue);
-    expect(await repository.loadIncidents('active-session'), isEmpty);
+    expect(find.text('Create teacher PIN'), findsOneWidget);
+    final setupPinFields = find.descendant(
+      of: find.byType(AlertDialog),
+      matching: find.byType(TextField),
+    );
+    expect(setupPinFields, findsNWidgets(2));
+    await tester.enterText(setupPinFields.at(0), '2468');
+    await tester.enterText(setupPinFields.at(1), '2468');
+    await tester.tap(find.text('Create PIN'));
+    await tester.pumpAndSettle();
+
+    expect(controller.activeSession?.assessmentName, 'Integration Quiz');
+    expect(find.text('ASSESSMENT ACTIVE'), findsOneWidget);
+
+    await tester.tap(find.text('Reports').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Teacher authorization'), findsOneWidget);
+    final reportPinField = find.descendant(
+      of: find.byType(AlertDialog),
+      matching: find.byType(TextField),
+    );
+    await tester.enterText(reportPinField, '2468');
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Local assessment reports'), findsOneWidget);
+    expect(find.text('Integration Quiz'), findsOneWidget);
+
+    await tester.tap(find.text('Assessment').last);
+    await tester.pumpAndSettle();
+    final end = find.byKey(const ValueKey('end-assessment'));
+    await tester.ensureVisible(end);
+    await tester.tap(end);
+    await tester.pumpAndSettle();
+    final endPinField = find.descendant(
+      of: find.byType(AlertDialog),
+      matching: find.byType(TextField),
+    );
+    await tester.enterText(endPinField, '2468');
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+
+    expect(controller.activeSession, isNull);
+    final savedSession = (await repository.loadSessions()).single;
+    expect(savedSession.isActive, isFalse);
+    expect(await repository.loadIncidents(savedSession.id), isEmpty);
   });
 
   testWidgets('iOS install action opens the manual Home Screen workflow', (

@@ -1,7 +1,7 @@
 # Development Status
 
-**Status date:** 2026-08-31
-**Overall state:** Core converter, assessment, local-report, responsive-shell, and install-flow implementation exists; cross-platform verification is in progress and the product is not release-ready.
+**Status date:** 2026-09-01
+**Overall state:** Core converter, calculator, assessment, local-report, responsive-shell, and install-flow implementation exists. Phase 3 stabilization passed local regression, release-build, Chrome install-signal, and offline-shell gates. Physical mobile installation/lifecycle testing and installed standalone acceptance remain open, so the product is not release-ready.
 
 This is the live delivery checklist. A checked item means the implementation exists in the repository and has appropriate verification evidence. Architecture approval alone does not make an implementation item complete.
 
@@ -19,12 +19,14 @@ This is the live delivery checklist. A checked item means the implementation exi
 | Flutter project scaffold | Done | Android, iOS, and Web runners are present |
 | Dependency baseline | Done | Flutter, Cupertino icons, shared preferences, and cryptographic verifier dependencies are locked |
 | Application UI | In progress | Product app shell, converter, assessment, reports, theme, and install affordances are implemented; physical-device acceptance remains open |
-| Automated tests | Done | `flutter analyze` is clean and all 95 VM/widget tests pass; the 14-test install-service suite also passes through Chrome's Web interop branch |
+| Automated tests | Done | `flutter analyze` is clean and all 135 VM/widget tests pass; 18 Chrome-specific install-service/action tests also pass |
 | Converter domain | Done | Nine-category catalog, conversion engine, affine temperature handling, search, and number formatting are implemented with unit coverage |
-| Assessment monitoring | In progress | Root lifecycle monitor, exact threshold policy, pending-candidate persistence/recovery, Android lock hints, and neutral reports are implemented; platform matrix remains open |
+| Calculator domain | Done | Feature-isolated immutable state/history models, angle modes, tokenizer/parser, scientific evaluation, typed failures, and deterministic number formatting are covered by 21 tests |
+| Calculator UI | Done | Material 3 basic/scientific keypads, expression/result/error display, memory, angle mode, session-local history, compact history sheet, tablet dialog, desktop history panel, and 320–2560 px widget coverage are implemented |
+| Assessment monitoring | In progress | Root lifecycle monitor, exact threshold policy, pending persistence/recovery, Android lock hints, internal tool/overlay no-incident integration, and neutral reports are verified; physical platform matrix remains open |
 | Local reports | In progress | SharedPreferences repository, report UI, teacher-PIN verifier, throttling, and deletion are implemented; migration/failure and physical persistence acceptance remain open |
-| Responsive UI | In progress | Compact, medium, and expanded navigation/layouts plus widget coverage exist; full browser/device/viewport matrix remains open |
-| PWA shell | In progress | Manifest metadata, icon declarations, install bridge loading, app-owned service worker, Firebase Hosting rules, and a public Vercel preview are configured; physical installation/offline acceptance remains open |
+| Responsive UI | In progress | Compact, medium, and expanded navigation/layouts pass logical-width tests from 320 through 2560 px; physical browser/device, zoom, and accessibility matrices remain open |
+| PWA shell | In progress | ACATECH manifest/branding, distinct safe-zone-tested icons, install signal, app-owned worker, release shell inventory, Chrome online load, and controlled offline reload pass; physical installation and standalone relaunch remain open |
 | Firebase synchronization | Deferred | Static Hosting rules exist, but report sync remains a future seam; Firebase CLI authentication and a project ID are unavailable |
 | Native desktop runners | Deferred | Desktop delivery currently means Web/PWA |
 
@@ -40,6 +42,54 @@ This is the live delivery checklist. A checked item means the implementation exi
 - [x] Preserve a repository seam for optional future Firebase synchronization.
 - [x] Use compact 320–599, medium 600–1023, and expanded 1024+ responsive tiers.
 - [x] Keep unsupported lock, call, and system-interruption causes unknown rather than inventing certainty.
+
+## Calculator module plan
+
+### Phase 1 — Pure calculator domain
+
+**Status: Done**
+
+- [x] Add a feature-based `lib/features/calculator/` boundary without changing converter code.
+- [x] Add immutable angle-mode, calculator-state, history-entry, and bounded-history models.
+- [x] Implement a pure Dart tokenizer and recursive-descent expression parser.
+- [x] Support arithmetic precedence, unary signs, parentheses, decimals, scientific literals, fractions through division, postfix percentage, and right-associative powers.
+- [x] Support `sqrt`, `sin`, `cos`, `tan`, `log`, `ln`, `exp`, `recip`, `pi`, and `e` with degree/radian trigonometry.
+- [x] Return typed syntax, division-by-zero, domain, and non-finite failures.
+- [x] Add deterministic finite-number formatting.
+- [x] Add 21 focused model, engine, error, and formatter tests.
+- [x] Re-run the full regression gate: `flutter analyze` clean and all 116 tests passing.
+
+### Phase 2 — Calculator application state and responsive UI
+
+**Status: Done**
+
+- [x] Add the calculator controller and tested input/evaluation state transitions without changing `CalculatorEngine`.
+- [x] Add clear, backspace, percentage, parentheses, constants, scientific functions, degree/radian selection, and recoverable error behavior.
+- [x] Add MC, MR, M+, and M− operations and bounded session-local history actions.
+- [x] Build a Material 3 display, 4-column basic keypad, scientific controls, angle selector, memory controls, and accessible calculator buttons.
+- [x] Use the shared theme, typography, card style, and color scheme in light and dark modes.
+- [x] Add compact history bottom sheet, tablet history dialog, and desktop two-panel history layout with reusable entries.
+- [x] Add Calculator to the existing adaptive navigation and `IndexedStack`; preserve the teacher-gated Reports destination.
+- [x] Verify 360, 390, 430, 768, 1024, 1366, and 1920 logical-pixel widths without layout exceptions.
+- [x] Verify calculator navigation and button input during an active assessment create no interruption incident and do not replace the root monitor.
+- [x] Add 12 Phase 2 controller/widget tests and re-run the complete 128-test regression suite.
+
+### Phase 3 — Stabilization and integration testing
+
+**Status: Done (local/automated); physical device gates remain open**
+
+- [x] Run clean static analysis and the complete 129-test VM/widget regression suite.
+- [x] Run 18 Chrome-specific PWA installation-state and install-action tests.
+- [x] Verify converter categories, formulas, search, input, unit selection, and results.
+- [x] Verify calculator basic/scientific operations, history, memory, and degree/radian modes.
+- [x] Verify teacher-PIN-protected assessment start, report access, and session end.
+- [x] Verify calculator, history, converter, keyboard, dropdown, PIN dialog, and theme interactions create zero incidents during an active assessment.
+- [x] Verify hidden/paused persistence and return-time duration classification remain correct.
+- [x] Build the release Web application and validate manifest, icons, JavaScript, bootstrap ordering, service-worker ownership, and complete shell inventory.
+- [x] Verify Chrome desktop captures the install eligibility signal and renders the cached release shell after the local server is stopped.
+- [x] Verify responsive logical widths at 320, 360, 390, 430, 768, 1024, 1366, 1920, and 2560 px.
+- [ ] Complete desktop installed standalone, Android Chrome, and iOS/iPadOS Safari acceptance on physical platforms.
+- [x] Record results, issues, and recommended fixes in `docs/PHASE3_TEST_REPORT.md`.
 
 ## Phase 0 — Requirements and architecture
 
@@ -132,7 +182,8 @@ This is the live delivery checklist. A checked item means the implementation exi
 
 **Status: In progress**
 
-- [x] Replace generated Flutter title, description, favicon, and icons with Unit Converter branding.
+- [x] Replace the interim Unit Converter identity with the supplied official ACATECH Aviation College logo and application naming.
+- [x] Add the full ACATECH logo to the web loading surface, Material shell, and in-app About page.
 - [x] Validate manifest name, short name, theme, background, start URL, scope, and standalone display.
 - [x] Verify PNG inventory dimensions: favicon 32 × 32, regular icons 192 × 192 and 512 × 512, and maskable icons 192 × 192 and 512 × 512.
 - [x] Declare regular icons for any purpose and dedicated maskable entries for maskable purpose.
@@ -147,9 +198,10 @@ This is the live delivery checklist. A checked item means the implementation exi
 - [ ] Confirm install flow on Android Chrome and iOS/iPadOS Safari.
 - [ ] Confirm installed and browser modes use the same monitoring limitations.
 - [x] Define the intended network-first, cached-shell offline behavior in TEST_PLAN.md.
-- [ ] Verify offline behavior after service-worker activation and one controlled online reload.
+- [x] Verify offline shell behavior after service-worker activation and one controlled online reload in Chrome 152.
 - [ ] Verify service-worker/update behavior for the supported Flutter release.
-- [ ] Visually validate maskable safe-zone cropping on Android launchers; matching dimensions alone do not prove safe artwork.
+- [x] Separate regular and maskable icon artwork and verify all visible maskable pixels remain inside the central 80% safe-zone circle.
+- [ ] Visually validate the safe-zone-tested artwork on physical Android launchers.
 - [ ] Measure cold and warm start against the agreed under-three-second baseline.
 - [ ] Profile scrolling and interaction performance on representative low-end hardware.
 
@@ -160,7 +212,7 @@ Checked items below have source, static-build, or automated-test evidence. Devic
 - [x] Manifest valid
 - [x] 192 icon
 - [x] 512 icon
-- [ ] Chromium install event detected
+- [x] Chromium install event detected
 - [ ] Desktop install tested
 - [ ] Android install tested
 - [x] iOS instructions implemented
@@ -174,16 +226,16 @@ Vercel automatically promoted the project's first deployment despite the CLI cal
 
 Firebase Hosting remains configuration-ready through firebase.json as an undeployed alternative. Firebase CLI 15.28.2 is available through `npx`, but it is not authenticated, no Firebase project ID has been supplied, and .firebaserc is intentionally absent. Firebase report synchronization remains deferred.
 
-The Chromium bridge and its one-shot prompt contract are covered in VM and Chrome Web tests. The real browser eligibility event remains unchecked until an installable HTTPS preview is available.
+The Chromium bridge and its one-shot prompt contract are covered in VM and Chrome Web tests. A local Chrome 152 release load captured the eligibility event and displayed Install App. Accepting the operating-system install prompt and relaunching standalone remain manual gates.
 
-The maskable PNGs currently match the regular PNGs byte-for-byte. Their files and manifest purposes are valid, but safe-zone cropping remains a manual Android launcher acceptance item.
+The regular and maskable PNGs are now separate ACATECH assets. Automated pixel validation confirms that all visible maskable artwork, including both wing tips, remains inside the central 80% safe-zone circle. Physical launcher-mask acceptance remains open.
 
 ## Phase 7 — Verification and release
 
 **Status: In progress**
 
 - [x] Make flutter analyze pass with no unresolved findings.
-- [x] Make the full automated test suite pass (95 tests).
+- [x] Make the full automated test suite pass (135 tests).
 - [x] Produce a release Web build.
 - [x] Document and verify the local-build Vercel static preview workflow.
 - [x] Produce an Android debug compatibility APK after the conditional Web implementation.
@@ -217,16 +269,16 @@ The maskable PNGs currently match the regular PNGs byte-for-byte. Their files an
 6. Browser timers are throttled while hidden, so classification must occur from persisted timestamps on return.
 7. Local PWA data and a browser-local PIN are not tamper-proof against the device owner.
 8. Broad “system dialog” exemptions could be exploited; expected external flows must be explicit and time-bounded.
-9. Automated coverage exists, but physical interruption, installation, offline, HTTPS, accessibility, and full viewport matrices remain open.
+9. Automated and local Chrome offline coverage exists, but physical interruption, installation, standalone, accessibility, and full device/browser matrices remain open.
 
 ## Immediate integration order
 
-1. Restore a clean flutter analyze and full automated-test gate.
-2. Run the documented local PWA service-worker, offline, and update procedures.
-3. Validate desktop, Android, and iOS/iPadOS installation on real browsers and devices.
-4. Complete the assessment interruption and Android lock-exclusion device matrix.
-5. Complete responsive, accessibility, performance, and local-persistence validation.
-6. Select and authenticate a Firebase project only when an HTTPS preview is authorized.
+1. Review `docs/PHASE3_TEST_REPORT.md` and approve or defer its recommended fixes.
+2. Validate desktop, Android, and iOS/iPadOS installation on real browsers and devices.
+3. Complete the assessment interruption and Android lock-exclusion device matrix.
+4. Complete responsive, accessibility, performance, and local-persistence validation.
+5. Run the service-worker update procedure with two distinct release builds.
+6. Start Module 2–13 only after explicit user approval.
 
 ## Checklist maintenance
 
@@ -239,6 +291,24 @@ When updating this file:
 - Record limitations rather than silently weakening acceptance criteria.
 
 ## Change log
+
+### 2026-09-01
+
+- Applied the supplied ACATECH Aviation College identity without redrawing or replacing the logo.
+- Added full-logo loading/About branding, separate 192/512 regular and maskable PWA icons, branded Android launcher densities, and a branded favicon.
+- Added pixel-level maskable safe-zone, branding inventory, manifest, loading-surface, and active-assessment About-navigation tests.
+- Documented source treatment, asset inventory, safe-zone geometry, application integration, and remaining physical-device acceptance in `docs/BRANDING.md`.
+- Completed calculator Phase 1 as a feature-isolated pure Dart domain module.
+- Added immutable calculator state/history models, degree/radian modes, expression parsing, scientific functions, typed errors, and deterministic formatting.
+- Completed the approved calculator Phase 2 controller and responsive presentation layer without changing the Phase 1 engine.
+- Added the calculator to the existing adaptive shell, with state retained by the existing `IndexedStack` and no changes to root assessment-monitor ownership.
+- Added 12 controller/UI tests and active-assessment no-incident integration coverage.
+- Completed Phase 3 stabilization without adding product features.
+- Expanded responsive checks to the 320 and 2560 px boundaries and added a teacher-PIN-protected assessment start/report/end integration test.
+- Verified clean analysis, all 129 VM/widget tests, 18 Chrome tests, and a release Web build.
+- Verified manifest/icons/scripts, install eligibility, service-worker shell acquisition, and a byte-identical offline Chrome render after server shutdown.
+- Recorded physical mobile/standalone gates, maskable-icon risk, and minor UI consistency/loading observations in `docs/PHASE3_TEST_REPORT.md`.
+- Left Module 2–13 implementation unstarted pending approval.
 
 ### 2026-08-31
 

@@ -1,14 +1,14 @@
 {
   "id": "./",
-  "name": "Unit Converter Classroom",
-  "short_name": "Unit Converter",
-  "description": "Fast unit conversion with local, privacy-respecting assessment presence reports.",
+  "name": "ACATECH Aviation Tools",
+  "short_name": "ACATECH Tools",
+  "description": "ACATECH Aviation College tools for unit conversion, scientific calculations, and local assessment support.",
   "lang": "en",
   "dir": "ltr",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#F7FAF8",
+  "background_color": "#FFFFFF",
   "theme_color": "#176B5B",
   "categories": [
     "education",

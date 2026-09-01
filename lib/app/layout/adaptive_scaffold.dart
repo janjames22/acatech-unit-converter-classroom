@@ -56,14 +56,21 @@ class AdaptiveScaffold extends StatelessWidget {
               children: [
                 DecoratedBox(
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Icon(
-                      Icons.straighten_rounded,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(11),
+                    child: Image.asset(
+                      'assets/branding/acatech_logo_full.png',
+                      key: const ValueKey('acatech-app-bar-logo'),
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.contain,
+                      semanticLabel: 'ACATECH Aviation College',
                     ),
                   ),
                 ),

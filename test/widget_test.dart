@@ -36,6 +36,7 @@ void main() {
     expect(find.text('Convert with confidence'), findsOneWidget);
     expect(find.text('Length'), findsOneWidget);
     expect(find.text('Assessment'), findsOneWidget);
+    expect(find.text('Calculator'), findsOneWidget);
     expect(find.text('Reports'), findsOneWidget);
   });
 }
